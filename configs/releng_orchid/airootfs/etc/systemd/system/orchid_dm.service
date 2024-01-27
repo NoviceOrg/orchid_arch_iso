@@ -1,0 +1,17 @@
+[Unit]
+Description=Orchid Display Manager
+Documentation=man:orchidui(1)
+After=rc-local.service
+
+[Service]
+ExecStartPre=weston
+ExecStart=/usr/lib/orchid_dm/orchid_dm
+Restart=always
+IgnoreSIGPIPE=no
+BusName=org.orchid.DisplayManager
+StandardOutput=syslog
+User=system
+
+[Install]
+Alias=display-manager.service
+WantedBy=graphical.target

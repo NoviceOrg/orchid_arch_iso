@@ -1,0 +1,5 @@
+#
+# /etc/udev/rules.d/99-block-storage.rules
+#
+ACTION=="add", KERNEL=="sd[b-z]", SUBSYSTEM=="block", RUN+="mount /dev/%k /mnt/block_disk%n"
+ACTION=="remove", KERNEL=="sd[b-z]", SUBSYSTEM=="block", RUN+="umount -l /mnt/block_disk%n"

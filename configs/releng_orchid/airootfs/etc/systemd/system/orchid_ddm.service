@@ -5,7 +5,7 @@ After=rc-local.service
 
 [Service]
 ExecStartPre=weston
-ExecStart=/usr/lib/orchid_dm/orchid_dm
+ExecStart=/etc/orchid/launch.sh
 Restart=always
 IgnoreSIGPIPE=no
 BusName=org.orchid.DisplayManager

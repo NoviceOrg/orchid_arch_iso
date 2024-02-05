@@ -1,0 +1,4 @@
+#
+# /etc/udev/rules.d/83-webcam.rules
+#
+KERNEL=="video[0-9]*", SUBSYSTEM=="video4linux", SYMLINK+="video-cam%n"

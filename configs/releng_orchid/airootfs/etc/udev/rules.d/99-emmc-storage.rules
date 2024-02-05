@@ -1,0 +1,5 @@
+#
+# /etc/udev/rules.d/99-emmc-storage.rules
+#
+ACTION=="add", KERNEL=="mmcblk[0-9]*", SUBSYSTEM=="block", RUN+="mount /dev/%k /mnt/emmc_disk%n"
+ACTION=="remove", KERNEL=="mmcblk[0-9]*", SUBSYSTEM=="block", RUN+="umount -l /mnt/emmc_disk%n"

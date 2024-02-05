@@ -130,8 +130,12 @@ xfsprogs
 xl2tpd
 zsh
 
+plymouth
+setxkbmap
+udev
+tlp
+uboot-tools
 weston
-alsa-lib
 dav1d
 dbus
 desktop-file-utils

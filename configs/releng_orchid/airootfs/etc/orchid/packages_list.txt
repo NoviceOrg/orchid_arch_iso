@@ -131,7 +131,7 @@ xl2tpd
 zsh
 
 plymouth
-setxkbmap
+networkmanager
 udev
 tlp
 uboot-tools

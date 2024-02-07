@@ -1,7 +1,0 @@
-[Plymouth Theme]
-Name=orchid
-Description=Orchid Bootscreen
-
-[LogoImage]
-ImageDir=/usr/share/plymouth/themes/orchid
-ScriptFile=script.plymouth

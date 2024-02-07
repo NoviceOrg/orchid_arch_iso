@@ -1,0 +1,9 @@
+[Unit]
+Description=Orchid First Boot
+
+[Service]
+Type=oneshot
+ExecStart=/etc/orchid/first_boot.sh
+
+[Install]
+WantedBy=multi-user.target

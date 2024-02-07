@@ -4,7 +4,9 @@ set -e
 
 ORCHID_PROFILE="~/.orchid"
 
-enable_service() {
+echo "Orchid Launch Service - Ding!"
+
+prepare_service() {
   local service="$1"
   if ! systemctl is-enabled "$service" &> /dev/null; then
     systemctl enable "$service"
@@ -12,12 +14,13 @@ enable_service() {
   systemctl start "$service"
 }
 
-enable_service acpid
-enable_service bluez
-enable_service dbus
-enable_service pipewire
-enable_service tlp
-enable_service udev
+prepare_service acpid.service
+prepare_service bluez.service
+prepare_service dbus.service
+prepare_service NetworkManager.service
+prepare_service pipewire.service
+prepare_service tlp.service
+prepare_service udev.service
 
 if [[ ! -d "$ORCHID_PROFILE" ]]; then
   exit 0

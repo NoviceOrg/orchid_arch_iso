@@ -131,6 +131,7 @@ xl2tpd
 zsh
 
 plymouth
+networkmanager
 udev
 tlp
 uboot-tools

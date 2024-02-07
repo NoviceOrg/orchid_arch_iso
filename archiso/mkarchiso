@@ -1703,7 +1703,11 @@ _read_profile() {
         . "${profile}/profiledef.sh"
 
         # Resolve paths of files that are expected to reside in the profile's directory
-        [[ -n "$arch" ]] || arch="$(uname -m)"
+        if [[ -v override_arch ]]; then
+            arch="$override_arch"
+        elif [[ -n "$arch" ]]; then
+            arch="$(uname -m)"
+        fi
         [[ -n "$packages" ]] || packages="${profile}/packages.${arch}"
         packages="$(realpath -- "${packages}")"
         pacman_conf="$(realpath -- "${pacman_conf}")"
@@ -1775,7 +1779,7 @@ _set_overrides() {
     if [[ -v override_out_dir ]]; then
         out_dir="$override_out_dir"
     elif [[ -z "$out_dir" ]]; then
-        out_dir='./out'
+        out_dir='./output'
     fi
     out_dir="$(realpath -- "$out_dir")"
     if [[ -v override_pacman_conf ]]; then
@@ -1996,8 +2000,9 @@ _build() {
     fi
 }
 
-while getopts 'c:p:C:L:P:A:D:w:m:o:g:G:vrh?' arg; do
+while getopts 'a:c:p:C:L:P:A:D:w:m:o:g:G:vrh?' arg; do
     case "${arg}" in
+        a) override_arch="${OPTARG}" ;;
         p) read -r -a override_pkg_list <<<"${OPTARG}" ;;
         C) override_pacman_conf="${OPTARG}" ;;
         L) override_iso_label="${OPTARG}" ;;

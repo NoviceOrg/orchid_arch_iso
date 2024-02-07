@@ -1,7 +1,7 @@
 *~
 archiso-*.tar.gz*
 work/
-out/
+output/
 *.iso
 *.img
 *.cer
@@ -10,3 +10,6 @@ out/
 *.pem
 user-data
 meta-data
+
+# Frontend
+configs/*/airootfs/**/orchid_ddm

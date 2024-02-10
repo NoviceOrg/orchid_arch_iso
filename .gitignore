@@ -13,3 +13,7 @@ meta-data
 
 # Frontend
 configs/*/airootfs/**/orchid_ddm
+
+/bridged/bridged
+/libbridge/libbridge
+/testcpp/testcpp

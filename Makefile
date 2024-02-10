@@ -1,33 +1,23 @@
-#
-# SPDX-License-Identifier: GPL-3.0-or-later
+CC = gcc
+CXX = g++
+CFLAGS = -std=c99
+CXXFLAGS = -std=c++11
+TARGETS = binary
 
-PREFIX ?= /usr/local
-BIN_DIR=$(DESTDIR)$(PREFIX)/bin
-DOC_DIR=$(DESTDIR)$(PREFIX)/share/doc/archiso
-PROFILE_DIR=$(DESTDIR)$(PREFIX)/share/archiso
+SUBPROJECTS = bridged libbridge testcpp
 
-DOC_FILES=$(wildcard docs/*) $(wildcard *.rst)
-SCRIPT_FILES=$(wildcard archiso/*) $(wildcard scripts/*.sh) $(wildcard .gitlab/ci/*.sh) \
-             $(wildcard configs/*/profiledef.sh) $(wildcard configs/*/airootfs/usr/local/bin/*)
+.PHONY: all clean $(SUBPROJECTS)
 
-all:
+all: $(TARGETS)
 
-check: shellcheck
+# We won't do non-binary. That will cause it to not run unless we refer to it as they/them.
+binary: $(wildcard *.c *.cpp)
+	for subdir in $(SUBPROJECTS); do \
+		$(CXX) $(CXXFLAGS) $$subdir/*.c* -o $$subdir/$$subdir -I$$subdir; \
+	done
 
-shellcheck:
-	shellcheck -s bash $(SCRIPT_FILES)
-
-install: install-scripts install-profiles install-doc
-
-install-scripts:
-	install -vDm 755 archiso/mkarchiso -t "$(BIN_DIR)/"
-	install -vDm 755 scripts/run_archiso.sh "$(BIN_DIR)/run_archiso"
-
-install-profiles:
-	install -d -m 755 $(PROFILE_DIR)
-	cp -a --no-preserve=ownership configs $(PROFILE_DIR)/
-
-install-doc:
-	install -vDm 644 $(DOC_FILES) -t $(DOC_DIR)
-
-.PHONY: check install install-doc install-profiles install-scripts shellcheck
+clean:
+	rm -f $(TARGETS) $(wildcard *.o */*.o)
+	for subdir in $(SUBPROJECTS); do \
+		$(MAKE) -C $$subdir clean; \
+	done

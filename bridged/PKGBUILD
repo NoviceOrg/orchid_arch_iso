@@ -1,0 +1,20 @@
+pkgname=bridged
+pkgver=1.0
+pkgrel=1
+pkgdesc="Orchid bridging daemon"
+arch=('any')
+url="https://orchidglobal.github.io/docs/linux/bridged"
+license=('GPL-2.0')
+depends=('glibc')
+
+source=("https://orchidglobal.github.io/releases/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.gz")
+
+build() {
+  cd "$pkgname-$pkgver"
+  # Build commands here
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  install -Dm755 bridged /bin/bridged
+}

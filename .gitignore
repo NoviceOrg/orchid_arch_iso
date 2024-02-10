@@ -11,6 +11,9 @@ output/
 user-data
 meta-data
 
+dogfood/*
+!dogfood/README.md
+
 # Frontend
 configs/*/airootfs/**/orchid_ddm
 

@@ -23,7 +23,7 @@ build_linux() {
   else
     mkdir -p "configs/releng_orchid/$INSTALL_PATH"
   fi
-  cp -r "$DDM_PRODUCT_NAME/dist/linux-unpacked/"* "configs/releng_orchid/$INSTALL_PATH/"
+  cp -r "$DDM_PRODUCT_NAME/dist/linux-unpacked/"* "configs/releng_orchid/airootfs/$INSTALL_PATH/"
 
   sudo ./archiso/mkarchiso -v -r -w "$working_dir" -o "$output_dir" -a "$ARCH" profile/releng_orchid
 }

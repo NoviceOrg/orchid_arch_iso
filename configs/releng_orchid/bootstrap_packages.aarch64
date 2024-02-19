@@ -130,12 +130,6 @@ xfsprogs
 xl2tpd
 zsh
 
-plymouth
-networkmanager
-udev
-tlp
-uboot-tools
-weston
 dav1d
 dbus
 desktop-file-utils
@@ -158,6 +152,7 @@ libxml2
 libxslt
 libxss
 minizip
+networkmanager
 nss
 opus
 pciutils
@@ -166,3 +161,8 @@ xdg-utils
 gtk4
 keepassxc
 pipewire
+plymouth
+tlp
+uboot-tools
+udev
+weston

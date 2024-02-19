@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-iso_name="orchidos-dev"
-iso_label="ORCHIDOS_DEV"
+iso_name="orchidos"
+iso_label="ORCHIDOS_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
 iso_publisher="Orchid <https://orchid.thats-the.name>"
-iso_application="OrchidOS DEV Live/Rescue CD"
-iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)-dev"
+iso_application="OrchidOS Live/Rescue CD"
+iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
 install_dir="system"
 buildmodes=('iso' 'bootstrap')
 bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito'
@@ -14,7 +14,7 @@ bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito'
 arch="x86_64"
 pacman_conf="pacman.conf"
 airootfs_image_type="squashfs"
-airootfs_image_tool_options=('-comp' 'gzip')
+airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86' '-b' '1M' '-Xdict-size' '1M')
 file_permissions=(
   ["/etc/shadow"]="0:0:400"
   ["/etc/orchid/first_boot.sh"]="0:0:755"

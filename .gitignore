@@ -12,16 +12,8 @@ output/
 user-data
 meta-data
 
-<<<<<<< HEAD
-=======
-firebase/
-dogfood/
-
->>>>>>> 8fb412b8a01cc1ac7f719ea3eb644c8df6c7dcea
 configs/*/airootfs/usr/lib/orchid_ddm
 
 /bridged/bridged
 /libbridge/libbridge
 /testcpp/testcpp
-
-/advertising

@@ -1,0 +1,21 @@
+pkgname=protodb
+pkgver=1.0
+pkgrel=1
+pkgdesc="Orchid simple database"
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://orchid.thats-the.name/docs/linux/protodb"
+license=('GPL-2.0')
+
+source=('protodb' 'protodb.h')
+
+build() {
+  cd "$pkgname-$pkgver"
+  # Build commands here
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  mkdir -p /usr/include/orchid/
+  install -Dm755 protodb /bin/protodb
+  install -Dm644 protodb.h /usr/include/orchid/protodb.h
+}

@@ -3,7 +3,7 @@ CXX = g++
 CFLAGS = -std=c99
 CXXFLAGS = -std=c++11
 
-SUBPROJECTS = bridged libbridge testcpp
+SUBPROJECTS = bridged libbridge protodb
 
 .PHONY: all clean $(SUBPROJECTS)
 

@@ -1,0 +1,262 @@
+#!/bin/bash
+
+set -e -u -x
+
+device_type=""
+device_part_prefix=""
+squashfs="yes"
+server_mode="no"
+
+while getopts ":d:s:S:" arg; do
+  case "$arg" in
+    d)
+      device_type="$OPTARG"
+      if [[ "$device_type" == "/dev/sd"* || "$device_type" == "/dev/vd"* ]]; then
+        device_part_prefix=""
+      elif [[ "$device_type" == "/dev/mmcblk"* ]]; then
+        device_part_prefix="p"
+      fi
+      ;;
+    s)
+      server_mode="$OPTARG"
+      ;;
+    S)
+      squashfs="$OPTARG"
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+print_message() {
+  local message=$1
+  echo "[Orchid Install] $message"
+}
+
+prompt_yes_no() {
+  while true; do
+    read -p "$1 (y/N): " yn
+    case $yn in
+      [Yy]* ) return 0;;  # Return 0 for yes
+      [Nn]* ) return 1;;  # Return 1 for no
+      * )     return 1;;
+    esac
+  done
+}
+
+create_partition() {
+  parted -s "$1" mkpart primary $2 $3
+}
+
+format_disk() {
+  local device=$1
+  local filesystem=$2
+
+  if [[ "$device" == "" ]]; then
+    if [[ -f "/dev/sda" ]]; then
+      device="/dev/sda"
+      device_part_prefix=""
+    elif [[ -f "/dev/vda" ]]; then
+      device="/dev/vda"
+      device_part_prefix=""
+    elif [[ -f "/dev/mmcblk0" ]]; then
+      device="/dev/mmcblk0"
+      device_part_prefix="p"
+    fi
+  fi
+
+  if [ -d "/sys/firmware/efi" ]; then
+    PARTITION_TABLE="gpt"
+  else
+    print_message "UEFI is not supported. Using MBR fallback."
+    PARTITION_TABLE="msdos"
+  fi
+
+  size=$(parted -s $device print | awk '/^Disk/ {print $3}')
+  size_value=$(echo $size | sed 's/[^0-9.]//g')
+  size_unit=$(echo $size | sed 's/[0-9.]//g')
+
+  case $size_unit in
+    "GB" | "GiB")
+      size_in_gb=$size_value
+      ;;
+    "MB" | "MiB")
+      size_in_gb=$((size_value / 1024))
+      ;;
+    "TB" | "TiB")
+      size_in_gb=$((size_value * 1024))
+      ;;
+    *)
+      print_message "Unknown unit: $size_unit"
+      exit 1
+      ;;
+  esac
+
+  parted -s "$device" mklabel "$PARTITION_TABLE"
+  if [[ "$server_mode" == "yes" ]]; then
+    create_partition "$device" 1MiB   500MB  # boot
+    create_partition "$device" 500MB  10.5GB # system_a (root)
+    create_partition "$device" 10.5GB 30.5GB # system_b (update)
+    create_partition "$device" 30.5GB 100%
+  else
+    if [ "$size_in_gb" -ge "32" ] && [ "$PARTITION_TABLE" == "gpt" ]; then
+      create_partition "$device" 1MiB   500MB  # boot
+      create_partition "$device" 500MB  5.5GB  # system_a (root)
+      create_partition "$device" 5.5GB  8.5GB  # system_b (update)
+      create_partition "$device" 8.5GB  10.5GB # recovery
+      create_partition "$device" 10.5GB 100%
+    elif [ "$size_in_gb" -ge "16" ]; then
+      create_partition "$device" 1MiB  500MB # boot
+      create_partition "$device" 500MB 5.5GB # system_a (root)
+      create_partition "$device" 5.5GB 8.5GB # system_b (update)
+      create_partition "$device" 8.5GB 100%
+    elif [ "$size_in_gb" -ge "8" ]; then
+      create_partition "$device" 1MiB  500MB # boot
+      create_partition "$device" 500MB 4.5GB # system (root)
+      create_partition "$device" 4.5GB 100%
+    else
+      create_partition "$device" 1MiB  200MB # boot
+      create_partition "$device" 200MB 2.2GB # system (root)
+      create_partition "$device" 2.2GB 100%
+    fi
+  fi
+
+  if [[ "$server_mode" == "yes" ]]; then
+    mkfs.fat -F32 -n boot     "${device}${device_part_prefix}1"
+    mkfs.ext4     -L system_a "${device}${device_part_prefix}2"
+    mkfs.ext4     -L system_b "${device}${device_part_prefix}3"
+    "mkfs.${filesystem}"    -L usrdata  "${device}${device_part_prefix}4"
+  else
+    if [ "$size_in_gb" -ge "32" ] && [ "$PARTITION_TABLE" == "gpt" ]; then
+      mkfs.fat -F32 -n boot     "${device}${device_part_prefix}1"
+      mkfs.ext4     -L system_a "${device}${device_part_prefix}2"
+      mkfs.ext4     -L system_b "${device}${device_part_prefix}3"
+      mkfs.ext4     -L recovery "${device}${device_part_prefix}4"
+      "mkfs.${filesystem}"    -L usrdata  "${device}${device_part_prefix}5"
+    elif [ "$size_in_gb" -ge "16" ]; then
+      mkfs.fat -F32 -n boot     "${device}${device_part_prefix}1"
+      mkfs.ext4     -L system_a "${device}${device_part_prefix}2"
+      mkfs.ext4     -L system_b "${device}${device_part_prefix}3"
+      "mkfs.${filesystem}"    -L usrdata  "${device}${device_part_prefix}4"
+    else
+      mkfs.fat -F32 -n boot    "${device}${device_part_prefix}1"
+      mkfs.ext4     -L system  "${device}${device_part_prefix}2"
+      "mkfs.${filesystem}"    -L usrdata "${device}${device_part_prefix}3"
+    fi
+  fi
+}
+
+mount_partitions() {
+  if [ "$size_in_gb" -ge "16" ]; then
+    mkdir -p /mnt
+    mount -L system_a /mnt
+  else
+    mkdir -p /mnt
+    mount -L system /mnt
+  fi
+
+  mkdir -p /mnt/boot/EFI
+  mkdir -p /mnt/home
+
+  mount LABEL=boot /mnt/boot/EFI
+  mount -L usrdata /mnt/home
+
+  if [[ "$server_mode" != "yes" ]]; then
+    if [ "$size_in_gb" -ge "32" ] && [ "$PARTITION_TABLE" == "gpt" ]; then
+      mkdir -p /mnt/recovery
+      mount -L recovery /mnt/recovery
+    fi
+  fi
+}
+
+install_system() {
+  if [ "$squashfs" == "yes" ]; then
+    if [[ -f "/run/archiso/bootmnt/arch/$(uname -m)/airootfs.sfs" ]]; then
+      unsquashfs "/run/archiso/bootmnt/arch/$(uname -m)/airootfs.sfs" -d /mnt
+    else
+      print_message "Falling back to non-SquashFS install..."
+      pacstrap -c /mnt - < /etc/orchid/packages_list.txt
+      cp -r /etc/orchid         /mnt/etc/
+      cp -r /usr/lib/orchid_ddm /mnt/usr/lib/
+    fi
+  else
+    pacstrap -c /mnt - < /etc/orchid/packages_list.txt
+    cp -r /etc/orchid         /mnt/etc/
+    cp -r /usr/lib/orchid_ddm /mnt/usr/lib/
+  fi
+
+  genfstab -U /mnt > /mnt/etc/fstab
+}
+
+prepare_system() {
+  arch-chroot /mnt <<EOF
+    dd if=/dev/zero of=/swapfile bs=1M count=512 status=progress
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+
+    echo "/swapfile none swap 0 0" >> /etc/fstab
+
+    hwclock --systohc
+    locale-gen
+
+    if [[ "$(uname -m)" == "x86_64" ]]; then
+      grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id=GRUB
+      grub-mkconfig -o /boot/grub/grub.cfg
+    elif [[ "$(uname -m)" == "armv7h" || "$(uname -m)" == "aarch64" ]]; then
+      mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n "OrchidOS Bootloader" -d /boot/boot.scr /boot/boot.scr.img
+    fi
+
+    exit
+EOF
+}
+
+unmount_partitions() {
+  if [[ "$server_mode" == "yes" ]]; then
+    umount -l -L boot
+    umount -l -L system_a
+    umount -l -L system_b
+    umount -l -L usrdata
+  else
+    if [ "$size_in_gb" -ge "32" ] && [ "$PARTITION_TABLE" == "gpt" ]; then
+      umount -l -L boot
+      umount -l -L system_a
+      umount -l -L system_b
+      umount -l -L recovery
+      umount -l -L usrdata
+    elif [ "$size_in_gb" -ge "16" ]; then
+      umount -l -L boot
+      umount -l -L system_a
+      umount -l -L system_b
+      umount -l -L usrdata
+    else
+      umount -l -L boot
+      umount -l -L system
+      umount -l -L usrdata
+    fi
+  fi
+}
+
+main() {
+  if prompt_yes_no "Do you want to wipe and install?"; then
+    print_message "Starting install..."
+  else
+    exit 0
+  fi
+  timedatectl set-ntp true
+
+  format_disk "$device_type" btrfs
+  mount_partitions
+  install_system
+  prepare_system
+  print_message "Installed successfully! You can reboot to your install now."
+  unmount_partitions
+}
+
+main

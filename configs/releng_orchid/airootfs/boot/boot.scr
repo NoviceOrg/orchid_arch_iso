@@ -1,0 +1,8 @@
+# U-Boot script for booting OrchidOS
+
+load mmc 0:1 ${kernel_addr_r} vmlinuz
+load mmc 0:1 ${fdt_addr_r} *.dtb
+
+setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait quiet splash
+
+bootz ${kernel_addr_r} - ${fdt_addr_r}

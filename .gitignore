@@ -12,8 +12,9 @@ output/
 user-data
 meta-data
 
+/*.protodb
 configs/*/airootfs/usr/lib/orchid_ddm
 
 /bridged/bridged
 /libbridge/libbridge
-/testcpp/testcpp
+/protodb/protodb

@@ -1,3 +1,6 @@
+#ifndef ORCHID_BRIDGE_H
+#define ORCHID_BRIDGE_H
+
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
@@ -5,10 +8,12 @@
 #include <sys/un.h>
 
 constexpr char SOCKET_PATH[] = "/tmp/orchid_bridge_socket";
-constexpr char PASSWORD[] = "your_password_here";
+constexpr char PASSWORD[] = "orchidadmin";
 
-void bridge_send(char *dataString) {
-  if (dataString == "") {
+void bridge_send(char *dataString)
+{
+  if (dataString == "")
+  {
     std::cerr << "Please specify data to send" << std::endl;
     return;
   }
@@ -18,7 +23,8 @@ void bridge_send(char *dataString) {
 
   // Create socket
   clientSocket = socket(AF_UNIX, SOCK_STREAM, 0);
-  if (clientSocket < 0) {
+  if (clientSocket < 0)
+  {
     perror("Error creating socket");
     return;
   }
@@ -29,15 +35,17 @@ void bridge_send(char *dataString) {
   strncpy(serverAddr.sun_path, SOCKET_PATH, sizeof(serverAddr.sun_path) - 1);
 
   // Connect to the server
-  if (connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+  if (connect(clientSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
+  {
     perror("Error connecting to server");
     return;
   }
 
   // Send text data from command-line parameter
-  const char* textData = dataString;
+  const char *textData = dataString;
   ssize_t bytesSent = send(clientSocket, textData, strlen(textData), 0);
-  if (bytesSent < 0) {
+  if (bytesSent < 0)
+  {
     perror("Error sending data");
     return;
   }
@@ -46,14 +54,16 @@ void bridge_send(char *dataString) {
   close(clientSocket);
 }
 
-void bridge_recieve() {
+void bridge_recieve()
+{
   int serverSocket, clientSocket;
   struct sockaddr_un serverAddr, clientAddr;
   socklen_t clientLen = sizeof(clientAddr);
 
   // Create socket
   serverSocket = socket(AF_UNIX, SOCK_STREAM, 0);
-  if (serverSocket < 0) {
+  if (serverSocket < 0)
+  {
     perror("Error creating socket");
     return;
   }
@@ -64,7 +74,8 @@ void bridge_recieve() {
   strncpy(serverAddr.sun_path, SOCKET_PATH, sizeof(serverAddr.sun_path) - 1);
 
   // Bind socket
-  if (bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+  if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
+  {
     perror("Error binding socket");
     return;
   }
@@ -73,8 +84,9 @@ void bridge_recieve() {
   listen(serverSocket, 1);
 
   // Accept a connection
-  clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddr, &clientLen);
-  if (clientSocket < 0) {
+  clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddr, &clientLen);
+  if (clientSocket < 0)
+  {
     perror("Error accepting connection");
     return;
   }
@@ -82,7 +94,8 @@ void bridge_recieve() {
   // Receive text data
   char buffer[1024];
   ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
-  if (bytesRead < 0) {
+  if (bytesRead < 0)
+  {
     perror("Error receiving data");
     return;
   }
@@ -102,3 +115,5 @@ void bridge_recieve() {
   // Remove the socket file
   unlink(SOCKET_PATH);
 }
+
+#endif ORCHID_BRIDGE_H

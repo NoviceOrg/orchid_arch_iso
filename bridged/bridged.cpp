@@ -5,16 +5,18 @@
 #include <sys/un.h>
 
 constexpr char SOCKET_PATH[] = "/tmp/orchid_bridge_socket";
-constexpr char PASSWORD[] = "your_password_here";
+constexpr char PASSWORD[] = "orchidadmin";
 
-int main() {
+int main()
+{
   int serverSocket, clientSocket;
   struct sockaddr_un serverAddr, clientAddr;
   socklen_t clientLen = sizeof(clientAddr);
 
   // Create socket
   serverSocket = socket(AF_UNIX, SOCK_STREAM, 0);
-  if (serverSocket < 0) {
+  if (serverSocket < 0)
+  {
     perror("Error creating socket");
     return -1;
   }
@@ -25,7 +27,8 @@ int main() {
   strncpy(serverAddr.sun_path, SOCKET_PATH, sizeof(serverAddr.sun_path) - 1);
 
   // Bind socket
-  if (bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+  if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
+  {
     perror("Error binding socket");
     return -1;
   }
@@ -34,8 +37,9 @@ int main() {
   listen(serverSocket, 1);
 
   // Accept a connection
-  clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddr, &clientLen);
-  if (clientSocket < 0) {
+  clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddr, &clientLen);
+  if (clientSocket < 0)
+  {
     perror("Error accepting connection");
     return -1;
   }
@@ -43,7 +47,8 @@ int main() {
   // Receive text data
   char buffer[1024];
   ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
-  if (bytesRead < 0) {
+  if (bytesRead < 0)
+  {
     perror("Error receiving data");
     return -1;
   }

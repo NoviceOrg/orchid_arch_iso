@@ -1,0 +1,4 @@
+recovery.recover_if_broken=true
+recovery.recover_if_corrupt=true
+recovery.recover_if_missing=true
+recovery.recovery_type=override

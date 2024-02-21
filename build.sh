@@ -18,12 +18,13 @@ prepare_frontend() {
 }
 
 build_linux() {
-  if [[ -d "configs/releng_orchid/$INSTALL_PATH/" ]]; then
-    rm -rf "configs/releng_orchid/$INSTALL_PATH/"
+  if [[ -d "configs/releng_orchid/airootfs/$INSTALL_PATH/" ]]; then
+    rm -rf "configs/releng_orchid/airootfs/$INSTALL_PATH/"
   else
-    mkdir -p "configs/releng_orchid/$INSTALL_PATH"
+    mkdir -p "configs/releng_orchid/airootfs/$INSTALL_PATH"
   fi
   cp -r "$DDM_PRODUCT_NAME/dist/linux-unpacked/"* "configs/releng_orchid/airootfs/$INSTALL_PATH/"
+  mv -r "configs/releng_orchid/airootfs/$INSTALL_PATH/webapps" "configs/releng_orchid/airootfs/usr/local/webapps"
 
   sudo ./archiso/mkarchiso -v -r -w "$working_dir" -o "$output_dir" -a "$ARCH" profile/releng_orchid
 }

@@ -3,11 +3,11 @@ pkgver=1.0
 pkgrel=1
 pkgdesc="Orchid bridging daemon"
 arch=('x86_64' 'armv7h' 'aarch64')
-url="https://orchidglobal.github.io/docs/linux/bridged"
+url="https://orchid.thats-the.name/docs/linux/bridged"
 license=('GPL-2.0')
 depends=('glibc')
 
-source=("https://orchidglobal.github.io/releases/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.gz")
+source=('bridged')
 
 build() {
   cd "$pkgname-$pkgver"

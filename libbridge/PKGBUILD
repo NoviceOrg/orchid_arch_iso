@@ -3,11 +3,11 @@ pkgver=1.0
 pkgrel=1
 pkgdesc="Orchid bridging library"
 arch=('x86_64' 'armv7h' 'aarch64')
-url="https://orchidglobal.github.io/docs/linux/libbridge"
+url="https://orchid.thats-the.name/docs/linux/libbridge"
 license=('GPL-2.0')
 depends=('glibc')
 
-source=("https://orchidglobal.github.io/releases/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.gz")
+source=('libbridge' 'bridge.h')
 
 build() {
   cd "$pkgname-$pkgver"
@@ -16,6 +16,7 @@ build() {
 
 package() {
   cd "$pkgname-$pkgver"
+  mkdir -p /usr/include/orchid/
   install -Dm755 libbridge /bin/bridge
-  install -Dm644 bridge.h /usr/include/bridge.h
+  install -Dm644 bridge.h /usr/include/orchid/bridge.h
 }

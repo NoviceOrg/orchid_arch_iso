@@ -18,3 +18,5 @@ configs/*/airootfs/usr/lib/orchid_ddm
 /bridged/bridged
 /libbridge/libbridge
 /protodb/protodb
+
+/firebase

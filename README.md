@@ -38,10 +38,10 @@ To emulate through QEMU KVM virtualization. Execute this command:
 You can commit changes to this repository in the form of a pull request and stage changes per feature
 
 We won't accept changes that:
-- Use any kind of Mozilla software or library as a dependency due to:
+- Use any kind of random poorly built or awfully led software or library as a dependency due to:
     - Terrible quality that adds inconsistency to the quality of Orchid
     - They tend to be inferior in basically everything. Even basic things
-    - Distrust of Mozilla off their hypocrisy and goal to silence whoever they don't like and basically do the exact opposite of what they said they'll do (Highly deceptive marketing that Orchid won't tolerate support of)
+    - We don't want to deal with a jackass irresponsible FOSS developer with the delusion that their product is perfect when we can just save time and precious brain energy replacing that developer's work. We intentionally unfavor most FOSS developers due to their lack of responsibility, sloppy experience and generally low quality effort no user wants. Oh. And them making a alternate of any existing software that does the exact same thing with no real special benefits other than a different desktop wallpaper or accent color all to fragment the FOSS space even more with the already large amounts of slop.
 - Implement planned obseletion or remote control/tracking of users
 - Remove any of our required medical and safety features for non-other than moronic open-source delusions
 - Implement things in a terrible execution similar to most foreign distros and Capyloon that's difficult for the user to understand or use safely

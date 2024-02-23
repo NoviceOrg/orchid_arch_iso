@@ -1,0 +1,13 @@
+# remove from airootfs!
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = pacman-mirrorlist
+
+[Action]
+Description = Uncommenting ARM mirrors in /etc/pacman.conf...
+When = PostTransaction
+Depends = pacman
+Depends = sed
+Exec = /usr/bin/sed -i "s|#Include = /etc/pacman.d/mirrorlist_arm|Include = /etc/pacman.d/mirrorlist_arm|g" /etc/pacman.conf

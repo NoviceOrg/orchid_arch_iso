@@ -1,10 +1,10 @@
 #!/bin/bash
 
-set -e
+set -e -u -x
 
-ORCHID_PROFILE="~/.orchid"
+ORCHID_PROFILE="~/.local/share/orchid"
 
-echo "Orchid Launch Service - Ding!"
+echo "Orchid Launch Service Starting..."
 
 prepare_service() {
   local service="$1"
@@ -22,14 +22,28 @@ prepare_service pipewire.service
 prepare_service tlp.service
 prepare_service udev.service
 
-if [[ ! -d "$ORCHID_PROFILE" ]]; then
-  exit 0
+if -f "$PATH/protodb"; then
+  if -f "$PATH/weston-ctl"; then
+    weston-ctl brightness "$(protodb get display.brightness)"
+  fi
 fi
 
-if [[ ! -d "$ORCHID_PROFILE/webapps" && -f "$ORCHID_PROFILE/Preferences" ]]; then
+mkdir -p "$ORCHID_PROFILE"
+
+if [[ "$ORCHID_PROFILE" == "" ]]; then
+  exit "Variable ORCHID_PROFILE is undefined"
+  exit 1
+fi
+
+if [[ -d "$ORCHID_PROFILE/cache" && ! -f "$ORCHID_PROFILE/Preferences" ]]; then
   rm -rf "$ORCHID_PROFILE/"*
 fi
 
+if [[ -d "/usr/lib/orchidshell" ]]; then
+  "/usr/lib/orchidshell/orchidshell"
+fi
 if [[ -d "/usr/lib/orchid_ddm" ]]; then
   "/usr/lib/orchid_ddm/orchid_ddm"
 fi
+
+exit 0
